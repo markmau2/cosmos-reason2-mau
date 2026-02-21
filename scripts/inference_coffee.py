@@ -52,7 +52,7 @@ def main():
     transformers.set_seed(0)
 
     # Load model
-    model_name = "nvidia/Cosmos-Reason2-2B"
+    model_name = "nvidia/Cosmos-Reason2-8B"
     model = transformers.Qwen3VLForConditionalGeneration.from_pretrained(
         model_name, dtype=torch.float16, device_map="auto", attn_implementation="sdpa"
     )
@@ -75,16 +75,17 @@ def main():
     conversation = [
         {
             "role": "system",
-            "content": [{"type": "text", "text": "You are a coffee pouring assistant."}],
+            "content": [{"type": "text", "text": "You are a coffee pouring assistant than inspect inside cup."}],
         },
         {
             "role": "user",
             "content": [
                 {
                     "type": "image",
-                    "video": f"{ROOT}/assets/full_cup.jpg",
+                    "image": f"{ROOT}/assets/empty_cup.jpg",
+                    #"image": f"{ROOT}/assets/full_cup.jpg",
                 },
-                {"type": "text", "text": "Check if there is cup to pour coffe, if yes, ask for serving coffe."},
+                {"type": "text", "text": "Check image if is there coffee inside the cup?. If Yes, then <answer> There is Not empty cup to serve <answer/> format. But If No, then <answer> Serving coffee for you <answer/> format. then answer"},
             ],
         },
     ]
