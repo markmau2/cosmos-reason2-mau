@@ -1,6 +1,6 @@
 #!/usr/bin/env -S uv run --script
 
-from cv_bridge import CvBridge
+
 import cv2
 
 def main():
