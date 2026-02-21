@@ -5,15 +5,15 @@ import cv2
 
 def main():
     # Initialize webcam
-    cam = VideoCapture(0)
+    cam = cv2.VideoCapture(0)
     # Capture one frame
     ret, frame = cam.read()
 
     if ret:
-      imshow("Captured", frame)         
-      imwrite("/home/user/Pictures/scene.png", frame)  
-      waitKey(0)                      
-      destroyWindow("Captured")       
+      #cv2.imshow("Captured", frame)         
+      cv2.imwrite("/home/mrosas/Pictures/scene.png", frame)  
+      #cv2.waitKey(0)                      
+      #cv2.destroyAllWindows()       
     else:
       print("Failed to capture image.")
 

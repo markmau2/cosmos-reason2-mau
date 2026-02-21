@@ -82,10 +82,10 @@ def main():
             "content": [
                 {
                     "type": "image",
-                    "image": f"{ROOT}/assets/empty_cup.jpg",
-                    #"image": f"{ROOT}/assets/full_cup.jpg",
+                    #"image": f"{ROOT}/assets/empty_cup.jpg",
+                    "image": f"{ROOT}/assets/full_cup.jpg",
                 },
-                {"type": "text", "text": "Check image if is there coffee inside the cup?. If Yes, then <answer> There is Not empty cup to serve <answer/> format. But If No, then <answer> Serving coffee for you <answer/> format. then answer"},
+                {"type": "text", "text": "If you see a cup then Check image if is there coffee inside the cup?. If Yes, then <answer> There is Not empty cup to serve <answer/> format. But If No, then <answer> Serving coffee for you <answer/> format. then answer"},
             ],
         },
     ]

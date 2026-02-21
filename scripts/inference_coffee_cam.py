@@ -40,7 +40,7 @@ from pathlib import Path
 import torch
 import transformers
 
-from cv_bridge import CvBridge
+
 import cv2
 
 ROOT = Path(__file__).parents[1]
@@ -52,10 +52,14 @@ PIXELS_PER_TOKEN = 32**2
 
 def main():
     # Initialize webcam
-    cam = VideoCapture(0)
+    cam = cv2.VideoCapture(0)
     # Capture one frame
     ret, frame = cam.read()
-    imwrite("/home/user/Pictures/scene.png", frame) 
+
+    if ret:
+       cv2.imwrite("/home/mrosas/Pictures/scene.png", frame) 
+    else:
+      print("Failed to capture image.")
     cam.release() 
 
     # Ensure reproducibility
@@ -92,7 +96,7 @@ def main():
             "content": [
                 {
                     "type": "image",
-                    "image": f"/home/user/Pictures/scene.png",
+                    "image": f"/home/mrosas/Pictures/scene.png",
                 },
                 {"type": "text", "text": "Check image if is there coffee inside the cup?. If Yes, then <answer> There is Not empty cup to serve <answer/> format. But If No, then <answer> Serving coffee for you <answer/> format. then answer"},
             ],
