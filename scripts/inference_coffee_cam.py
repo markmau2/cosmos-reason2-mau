@@ -40,7 +40,7 @@ from pathlib import Path
 import torch
 import transformers
 
-
+import time
 import cv2
 
 ROOT = Path(__file__).parents[1]
@@ -51,16 +51,6 @@ PIXELS_PER_TOKEN = 32**2
 
 
 def main():
-    # Initialize webcam
-    cam = cv2.VideoCapture(0)
-    # Capture one frame
-    ret, frame = cam.read()
-
-    if ret:
-       cv2.imwrite("/home/mrosas/Pictures/scene.png", frame) 
-    else:
-      print("Failed to capture image.")
-    cam.release() 
 
     # Ensure reproducibility
     transformers.set_seed(0)
@@ -84,50 +74,82 @@ def main():
         "longest_edge": max_vision_tokens * PIXELS_PER_TOKEN,
     }
 
-    # Create inputs
-    # IMPORTANT: Media is listed before text to match training inputs
-    conversation = [
-        {
-            "role": "system",
-            "content": [{"type": "text", "text": "You are a coffee pouring assistant than inspect inside cup."}],
-        },
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "image": f"/home/mrosas/Pictures/scene.png",
-                },
-                {"type": "text", "text": "Check image if is there coffee inside the cup?. If Yes, then <answer> There is Not empty cup to serve <answer/> format. But If No, then <answer> Serving coffee for you <answer/> format. then answer"},
-            ],
-        },
-    ]
+    try:
+        frame_count = 1 # Number of frames to capture and process. Adjust as needed.
+        i = 0 # Counter for captured frames
+        t = 10 #Total time to wait before capture the next frame, in seconds. Adjust as needed.
+        while i < frame_count:
+            for i in range(0,frame_count):
+                    print(f"Reset Enviroment: Timer is {t} seconds")
+                    time.sleep(t)
 
-    # Process inputs
-    inputs = processor.apply_chat_template(
-        conversation,
-        tokenize=True,
-        add_generation_prompt=True,
-        return_dict=True,
-        return_tensors="pt",
-        fps=4,
-    )
-    inputs = inputs.to(model.device)
+                    # Initialize webcam
+                    cam = cv2.VideoCapture(0)
+                    print(f"Capturing frame: {i+1}")
+                    # Capture one frame
+                    ret, frame = cam.read()
+                    image_name = f"/home/mrosas/Pictures/scene_{i+1}.png"    
 
-    # Run inference
-    generated_ids = model.generate(**inputs, max_new_tokens=4096)
-    generated_ids_trimmed = [
-        out_ids[len(in_ids) :]
-        for in_ids, out_ids in zip(inputs.input_ids, generated_ids, strict=False)
-    ]
-    output_text = processor.batch_decode(
-        generated_ids_trimmed,
-        skip_special_tokens=True,
-        clean_up_tokenization_spaces=False,
-    )
-    print(SEPARATOR)
-    print(output_text[0])
-    print(SEPARATOR)
+                    if ret:
+                        cv2.imwrite(image_name, frame) 
+                        cam.release() 
+                        # Create inputs
+                        # IMPORTANT: Media is listed before text to match training inputs
+                        conversation = [
+                            {
+                                "role": "system",
+                                "content": [{"type": "text", "text": "You are a coffee pouring assistant than inspect inside cup."}],
+                            },
+                            {
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "type": "image",
+                                        "image": image_name,
+                                    },
+                                    {"type": "text", "text": "Check image if is there coffee inside the cup?. If Yes, then <answer> There is Not empty cup to serve <answer/> format. But If No, then <answer> Serving coffee for you <answer/> format. then answer"},
+                                ],
+                            },
+                        ]
+
+                        # Process inputs
+                        inputs = processor.apply_chat_template(
+                            conversation,
+                            tokenize=True,
+                            add_generation_prompt=True,
+                            return_dict=True,
+                            return_tensors="pt",
+                            fps=4,
+                        )
+                        inputs = inputs.to(model.device)
+
+                        # Run inference
+                        generated_ids = model.generate(**inputs, max_new_tokens=4096)
+                        generated_ids_trimmed = [
+                            out_ids[len(in_ids) :]
+                            for in_ids, out_ids in zip(inputs.input_ids, generated_ids, strict=False)
+                        ]
+                        output_text = processor.batch_decode(
+                            generated_ids_trimmed,
+                            skip_special_tokens=True,
+                            clean_up_tokenization_spaces=False,
+                        )
+                        print(SEPARATOR)
+                        print(output_text[0])
+                        print(SEPARATOR)
+
+                    else:
+                        print("Failed to capture image.")
+                        cam.release() 
+                        break
+
+                    i += 1
+                    
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+       cam.release() 
 
 
 if __name__ == "__main__":
